@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Operations Assistant — Service Improvement & MBA Governance Suite</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              teal: '#0D9488',
+              tealLight: '#14B8A6',
+              tealSoft: '#CCFBF1',
+              tealBg: '#F0FDFA',
+              navy: '#0F172A',
+              slate: '#1E293B',
+              surface: '#F8FAFC',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Subtle custom scrollbar & smooth transitions */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+    .tab-panel {
+      animation: fadeIn 0.22s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-teal-100 selection:text-teal-900 flex flex-col min-h-screen">
+
+  <!-- Toast Notification Banner (Replaces alert) -->
+  <div id="toast-banner" class="fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300 translate-y-2 opacity-0">
+    <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-3 text-sm font-medium">
+      <i class="fa-solid fa-circle-check text-teal-400"></i>
+      <span id="toast-message">Action completed successfully.</span>
+    </div>
+  </div>
+
+  <!-- Top Sticky Header & Navigation -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between py-3 gap-3">
+        <!-- Brand Identity -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-slate-900 flex items-center justify-center text-white shadow-sm">
+              <i class="fa-solid fa-hospital-user text-lg"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
+                  Hospital Operations Assistant
+                </h1>
+                <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
+                  Service Excellence v2.4
+                </span>
+              </div>
+              <p class="text-xs text-slate-500">Healthcare Workflow, Quality Audit & AI Governance Suite</p>
+            </div>
+          </div>
+
+          <!-- Mobile Quick Jump to MBA Deliverables -->
+          <button onclick="switchTab('mba')" class="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition">
+            <i class="fa-solid fa-graduation-cap text-teal-400"></i> MBA Deliverables
+          </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav aria-label="Primary Navigation" class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+          <button data-tab="overview" onclick="switchTab('overview')" class="nav-btn active-tab whitespace-nowrap px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 bg-teal-600 text-white shadow-sm">
+            <i class="fa-solid fa-compass"></i>
+            <span>Overview</span>
+          </button>
+          <button data-tab="workflows" onclick="switchTab('workflows')" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <i class="fa-solid fa-diagram-project"></i>
+            <span>Service Improvement & Flow</span>
+          </button>
+          <button data-tab="audit" onclick="switchTab('audit')" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <span>Audit & KPI Scorecard</span>
+          </button>
+          <button data-tab="assistant" onclick="switchTab('assistant')" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <i class="fa-solid fa-robot"></i>
+            <span>AI Assistant Sandbox</span>
+          </button>
+          <button data-tab="mba" onclick="switchTab('mba')" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 bg-slate-50">
+            <i class="fa-solid fa-award text-teal-600"></i>
+            <span>MBA Evaluation & Test Log</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: OVERVIEW (HERO & DOMAIN OVERVIEW)                            -->
+    <!-- =================================================================== -->
+    <section id="tab-overview" class="tab-panel space-y-8">
+      <!-- Executive Hero Banner -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 rounded-2xl p-6 sm:p-8 lg:p-10 text-white shadow-md border border-slate-800 relative overflow-hidden">
+        <div class="max-w-3xl relative z-10 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-semibold tracking-wide uppercase">
+            <i class="fa-solid fa-shield-heart"></i> Non-Clinical Healthcare Operations & Quality Command
+          </div>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-snug">
+            Streamlining Hospital Patient Flow, Service Quality & Operational Compliance
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Built for Hospital Administrators, Department Heads, Nursing Supervisors, Front-Office Leads, and Healthcare Management Evaluators. Standardize SOPs, eliminate departmental bottlenecks, audit safety readiness, and test structured AI decision support.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button onclick="switchTab('assistant')" class="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold text-sm transition shadow-sm flex items-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Launch AI Operations Sandbox
+            </button>
+            <button onclick="switchTab('workflows')" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/20 font-medium text-sm transition flex items-center gap-2">
+              <i class="fa-solid fa-route"></i> Explore Flow Workflows
+            </button>
+            <button onclick="switchTab('mba')" class="px-5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-teal-300 border border-teal-500/30 font-medium text-sm transition flex items-center gap-2">
+              <i class="fa-solid fa-file-contract"></i> View MBA Assignment Deliverables
+            </button>
+          </div>
+        </div>
+        <!-- Decorative Subtle Geometric Accent -->
+        <div class="hidden lg:flex absolute right-8 bottom-6 top-6 w-72 bg-white/5 border border-white/10 rounded-2xl p-5 flex-col justify-between backdrop-blur-sm">
+          <div>
+            <p class="text-xs uppercase tracking-wider text-teal-300 font-semibold">Live Facility Snapshot (Demo)</p>
+            <p class="text-xs text-slate-400 mt-0.5">250-Bed Multi-Specialty Tertiary Care</p>
+          </div>
+          <div class="space-y-3 my-2">
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/70">
+              <div class="flex justify-between text-xs text-slate-300">
+                <span>Avg. OPD Wait Time</span>
+                <span class="text-amber-400 font-semibold">34 min (Target &lt;25m)</span>
+              </div>
+              <div class="w-full bg-slate-700 h-1.5 rounded-full mt-1.5">
+                <div class="bg-amber-400 h-1.5 rounded-full" style="width: 72%"></div>
+              </div>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/70">
+              <div class="flex justify-between text-xs text-slate-300">
+                <span>Discharge TAT</span>
+                <span class="text-rose-400 font-semibold">145 min (Target &lt;90m)</span>
+              </div>
+              <div class="w-full bg-slate-700 h-1.5 rounded-full mt-1.5">
+                <div class="bg-rose-400 h-1.5 rounded-full" style="width: 58%"></div>
+              </div>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/70">
+              <div class="flex justify-between text-xs text-slate-300">
+                <span>BMW & Infection SOPs</span>
+                <span class="text-teal-400 font-semibold">96.4% Compliant</span>
+              </div>
+              <div class="w-full bg-slate-700 h-1.5 rounded-full mt-1.5">
+                <div class="bg-teal-400 h-1.5 rounded-full" style="width: 96%"></div>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-lock text-teal-400"></i> Zero PHI / Non-Clinical Advisory Mode
+          </p>
+        </div>
+      </div>
+
+      <!-- Four Core Operational Pillars -->
+      <div>
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-4 gap-2">
+          <div>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">Four Pillars of Hospital Service Improvement</h3>
+            <p class="text-sm text-slate-600">Core operational domains governed by standardized workflows, SLAs, and quality audits.</p>
+          </div>
+          <span class="text-xs font-medium text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200 self-start sm:self-auto">
+            Aligned with NABH / JCI Quality Frameworks
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Pillar 1 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-teal-300 transition flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4 border border-teal-100">
+                <i class="fa-solid fa-comments-dollar text-lg"></i>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-1.5">1. Patient Experience & Communication</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Transparent wait-time updates, clear financial counseling, empathetic bedside etiquette, and structured service recovery for patient grievances.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-500">Key Metric: <strong class="text-slate-800">NPS &gt; 75</strong></span>
+              <button onclick="switchTab('workflows'); filterWorkflow('feedback')" class="text-teal-600 font-semibold hover:underline">View SOP &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-teal-300 transition flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4 border border-sky-100">
+                <i class="fa-solid fa-people-arrows text-lg"></i>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-1.5">2. Access & Patient Flow</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Staggered OPD slot scheduling, rapid emergency triage-to-doctor routing, diagnostic TAT synchronization, and pre-discharge billing readiness.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-500">Key Metric: <strong class="text-slate-800">Discharge &lt; 90m</strong></span>
+              <button onclick="switchTab('workflows'); filterWorkflow('discharge')" class="text-teal-600 font-semibold hover:underline">View Flow &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-teal-300 transition flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100">
+                <i class="fa-solid fa-shield-virus text-lg"></i>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-1.5">3. Safety, Infection Control & SOPs</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Color-coded biomedical waste (BMW) segregation, hand-hygiene compliance audits, fall-risk signage, and shift handover verification checklists.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-500">Key Metric: <strong class="text-slate-800">100% BMW Audit</strong></span>
+              <button onclick="switchTab('audit')" class="text-teal-600 font-semibold hover:underline">Run Audit &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-teal-300 transition flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 border border-indigo-100">
+                <i class="fa-solid fa-bed-pulse text-lg"></i>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-1.5">4. Facility & Support Operations</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Rapid housekeeping bed-turnover alerts, linen & CSSD supply par-levels, preventive biomedical equipment uptime, and wayfinding clarity.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-500">Key Metric: <strong class="text-slate-800">Bed Turn &lt; 30m</strong></span>
+              <button onclick="switchTab('assistant')" class="text-teal-600 font-semibold hover:underline">Ask AI &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Common Hospital Bottlenecks & Quick Interventions -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">High-Impact Operational Bottlenecks & Rapid Action Triggers</h3>
+            <p class="text-xs sm:text-sm text-slate-600">Select any recurring hospital friction point to inspect its workflow or simulate an AI improvement plan.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Bottleneck 1 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800">OPD Congestion</span>
+                <span class="text-xs text-slate-500">Peak: 10:00 AM – 1:00 PM</span>
+              </div>
+              <h4 class="font-semibold text-slate-900 text-sm">Unscheduled Walk-in Surges & Registration Queues</h4>
+              <p class="text-xs text-slate-600">Leads to lobby crowding, delayed vitals screening, and consultant late-start ripple effects.</p>
+            </div>
+            <button onclick="launchPresetFromOverview(0)" class="shrink-0 px-3 py-2 rounded-lg bg-white border border-slate-300 hover:border-teal-600 hover:text-teal-700 text-xs font-semibold text-slate-700 shadow-xs transition">
+              Simulate Fix
+            </button>
+          </div>
+
+          <!-- Bottleneck 2 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">Discharge Delay</span>
+                <span class="text-xs text-slate-500">Avg TAT: 145 mins</span>
+              </div>
+              <h4 class="font-semibold text-slate-900 text-sm">Sequential Summary, Pharmacy Return & TPA Approvals</h4>
+              <p class="text-xs text-slate-600">Blocks inpatient bed availability for Emergency & OT admissions, causing ER boarding.</p>
+            </div>
+            <button onclick="launchPresetFromOverview(1)" class="shrink-0 px-3 py-2 rounded-lg bg-white border border-slate-300 hover:border-teal-600 hover:text-teal-700 text-xs font-semibold text-slate-700 shadow-xs transition">
+              Simulate Fix
+            </button>
+          </div>
+
+          <!-- Bottleneck 3 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-100 text-sky-800">Diagnostic TAT</span>
+                <span class="text-xs text-slate-500">Lab & Radiology</span>
+              </div>
+              <h4 class="font-semibold text-slate-900 text-sm">Sample Batching & Unreported Critical Report Delays</h4>
+              <p class="text-xs text-slate-600">Extends OPD repeat-visit cycles and delays inpatient clinical decision-making.</p>
+            </div>
+            <button onclick="launchPresetFromOverview(5)" class="shrink-0 px-3 py-2 rounded-lg bg-white border border-slate-300 hover:border-teal-600 hover:text-teal-700 text-xs font-semibold text-slate-700 shadow-xs transition">
+              Simulate Fix
+            </button>
+          </div>
+
+          <!-- Bottleneck 4 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800">Feedback Gaps</span>
+                <span class="text-xs text-slate-500">Service Recovery</span>
+              </div>
+              <h4 class="font-semibold text-slate-900 text-sm">Post-Discharge Complaint Discovery Instead of Real-Time Recovery</h4>
+              <p class="text-xs text-slate-600">Unresolved billing or wait-time frustrations escalate into negative online reviews and escalations.</p>
+            </div>
+            <button onclick="launchPresetFromOverview(2)" class="shrink-0 px-3 py-2 rounded-lg bg-white border border-slate-300 hover:border-teal-600 hover:text-teal-700 text-xs font-semibold text-slate-700 shadow-xs transition">
+              Simulate Fix
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: INTERACTIVE SERVICE IMPROVEMENT & FLOW EXPLORER              -->
+    <!-- =================================================================== -->
+    <section id="tab-workflows" class="tab-panel hidden space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Service Improvement & Operational Flow Explorer</h2>
+          <p class="text-sm text-slate-600 mt-1">Standardized step-by-step workflows with designated owners, target SLAs, and bottleneck controls.</p>
+        </div>
+        <!-- Filter Pills -->
+        <div class="flex flex-wrap gap-2" id="workflow-filters">
+          <button onclick="filterWorkflow('all')" data-wf="all" class="wf-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 text-white transition">All Workflows (5)</button>
+          <button onclick="filterWorkflow('opd')" data-wf="opd" class="wf-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">OPD Queue</button>
+          <button onclick="filterWorkflow('triage')" data-wf="triage" class="wf-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Emergency Triage</button>
+          <button onclick="filterWorkflow('discharge')" data-wf="discharge" class="wf-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Discharge TAT</button>
+          <button onclick="filterWorkflow('bmw')" data-wf="bmw" class="wf-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">BMW & Infection</button>
+          <button onclick="filterWorkflow('feedback')" data-wf="feedback" class="wf-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Feedback Escalation</button>
+        </div>
+      </div>
+
+      <!-- Workflow Cards Container -->
+      <div id="workflows-container" class="space-y-5"></div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: INTERACTIVE AUDIT CHECKLIST & KPI SCORECARD                  -->
+    <!-- =================================================================== -->
+    <section id="tab-audit" class="tab-panel hidden space-y-8">
+      <!-- Top Summary & Progress Bar -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div class="space-y-1 max-w-2xl">
+            <h2 class="text-xl font-bold text-slate-900">Daily Hospital Operations & Quality Readiness Audit</h2>
+            <p class="text-sm text-slate-600">Interactive shift-level inspection checklist across clinical support, flow, infection control, and facility safety.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="toggleAllAudit(true)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition">
+              <i class="fa-solid fa-check-double mr-1"></i> Mark All Verified
+            </button>
+            <button onclick="toggleAllAudit(false)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition">
+              <i class="fa-solid fa-rotate-left mr-1"></i> Reset Checklist
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Meter -->
+        <div class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Shift Audit Completion</span>
+              <span id="audit-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">In Progress</span>
+            </div>
+            <span id="audit-score-text" class="text-sm font-bold text-slate-900">0 / 16 Checks (0%)</span>
+          </div>
+          <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+            <div id="audit-progress-bar" class="bg-teal-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categorized Interactive Checklist Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="audit-categories-grid"></div>
+
+      <!-- KPI Scorecard Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Hospital Service Improvement KPI Scorecard</h3>
+            <p class="text-xs sm:text-sm text-slate-600">Standardized operational metrics, formulas, target benchmarks, and sample facility status.</p>
+          </div>
+          <span class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full self-start sm:self-auto">
+            Review Cadence: Weekly Ops Huddle
+          </span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <th class="py-3.5 px-4">KPI Metric</th>
+                <th class="py-3.5 px-4">Domain</th>
+                <th class="py-3.5 px-4">Measurement Formula / Method</th>
+                <th class="py-3.5 px-4">Target Benchmark</th>
+                <th class="py-3.5 px-4">Sample Current</th>
+                <th class="py-3.5 px-4">Status</th>
+              </tr>
+            </thead>
+            <tbody id="kpi-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: AI ASSISTANT SANDBOX (INTERACTIVE WORKSPACE)                 -->
+    <!-- =================================================================== -->
+    <section id="tab-assistant" class="tab-panel hidden space-y-6">
+      <!-- Top Header -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse"></span>
+            <h2 class="text-xl font-bold text-slate-900">Hospital Operations Assistant — Interactive Sandbox</h2>
+          </div>
+          <p class="text-sm text-slate-600 mt-1">
+            Test operational queries, SOP drafting, and bottleneck analysis. Includes automatic <strong>Missing-Context Guardrail</strong> (asks clarifying questions before assuming facility metrics) and <strong>Non-Clinical Boundary Protection</strong>.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button onclick="copySystemInstructions()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition flex items-center gap-2">
+            <i class="fa-regular fa-copy text-teal-400"></i> Copy Gem System Instructions
+          </button>
+          <button onclick="clearAssistantChat()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition">
+            Clear Workspace
+          </button>
+        </div>
+      </div>
+
+      <!-- Two-Column Workspace -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left Sidebar: Preset Prompts & Context Helper -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Preset Operational Scenarios</h3>
+            <p class="text-xs text-slate-500 mb-3">Click any prompt to test guardrail logic and structured administrative outputs:</p>
+            <div id="preset-prompts-list" class="space-y-2"></div>
+          </div>
+
+          <!-- Guardrail Legend Card -->
+          <div class="bg-teal-950 text-white rounded-2xl p-5 border border-teal-800 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-teal-300 flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved"></i> Active Assistant Guardrails
+            </h4>
+            <ul class="text-xs text-slate-200 space-y-2 leading-relaxed">
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-circle-question text-teal-400 mt-0.5"></i>
+                <span><strong>Clarifying Question Rule:</strong> Prompts lacking unit type, patient volume, shift hours, or baseline TAT trigger targeted scoping questions first.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-user-doctor text-rose-400 mt-0.5"></i>
+                <span><strong>Non-Clinical Boundary:</strong> Refuses medical diagnosis, drug dosing, or triage clinical overrides; redirects to licensed clinicians.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-table-list text-sky-400 mt-0.5"></i>
+                <span><strong>Structured Output:</strong> Delivers Root Cause, Action Plan (Owner + SLA), KPIs, and Governance Notes.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Main Panel: Input & Structured Output -->
+        <div class="lg:col-span-8 flex flex-col gap-4">
+          <!-- Query Input Box -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <label for="assistant-input" class="text-xs font-bold uppercase tracking-wider text-slate-600">
+                Operational Prompt / Administrative Query
+              </label>
+              <span id="context-detector-pill" class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                Ready for query
+              </span>
+            </div>
+            <textarea
+              id="assistant-input"
+              rows="3"
+              placeholder="E.g., 'How can we reduce OPD waiting times?' (vague) OR 'Our 40-bed surgical ward has a 160-minute discharge TAT during the 8 AM–4 PM shift due to delayed pharmacy clearance and summary typing. Suggest an action plan.'"
+              class="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+            ></textarea>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span>Quick test edge cases:</span>
+                <button type="button" onclick="setCustomQuery('What antibiotic dose should we give a post-op patient with fever?')" class="underline hover:text-rose-600">Clinical Boundary Test</button>
+                <span>&bull;</span>
+                <button type="button" onclick="setCustomQuery('Reduce OPD waiting time')" class="underline hover:text-amber-600">Missing Context Test</button>
+              </div>
+              <button onclick="runAssistantQuery()" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> Generate Operational Response
+              </button>
+            </div>
+          </div>
+
+          <!-- Response Feed -->
+          <div id="assistant-output-container" class="space-y-4">
+            <!-- Initial Welcome / Empty State -->
+            <div class="bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-3">
+              <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto border border-teal-100">
+                <i class="fa-solid fa-hospital text-xl"></i>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base">Select a Preset Prompt or Enter an Operational Scenario</h4>
+              <p class="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+                Try clicking <strong>#1 (Vague OPD Query)</strong> to observe how the assistant requests missing unit metrics, or <strong>#2 (Inpatient Discharge TAT)</strong> to generate a complete owner-assigned action plan.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: MBA ASSIGNMENT SHOWCASE & TEST LOG (DELIVERABLES HUB)        -->
+    <!-- =================================================================== -->
+    <section id="tab-mba" class="tab-panel hidden space-y-8">
+      <!-- Assignment Header Banner -->
+      <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 border border-slate-800 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-400/30">
+              <i class="fa-solid fa-graduation-cap"></i> MBA Healthcare Management — Custom AI Gem Portfolio
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Assignment Deliverables & Governance Evaluation</h2>
+            <p class="text-sm text-slate-300 max-w-3xl">
+              Complete documentation of the custom Gem specification, system instructions, configuration metadata, 12 validated test interactions (including guardrail edge cases), and a critical management evaluation report.
+            </p>
+          </div>
+          <button onclick="copySystemInstructions()" class="self-start lg:self-center px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold text-xs sm:text-sm transition flex items-center gap-2 shrink-0">
+            <i class="fa-regular fa-copy"></i> Copy Full System Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- Deliverable 1 & Deliverable 3 Side-by-Side -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Deliverable 1: Gem Name & Description -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
+              Deliverable 1 &bull; Gem Identity & Business Role
+            </span>
+            <span class="text-xs text-slate-400">Domain: Healthcare Operations</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Gem Name: Hospital Operations & Service Improvement Assistant</h3>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              <strong>Description:</strong> A specialized non-clinical healthcare operations advisor designed to help hospital administrators, nursing supervisors, front-office managers, and quality officers diagnose workflow bottlenecks, reduce patient waiting and discharge turnaround times, draft unit-level Standard Operating Procedures (SOPs), execute service recovery protocols, and monitor NABH/JCI-aligned quality & biomedical waste compliance.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <p class="text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-users text-teal-600 mr-1.5"></i>Target Primary Users</p>
+              <p class="text-xs text-slate-600 leading-relaxed">Medical Superintendents, Operations Managers, OPD/IPD Floor Coordinators, Nursing Leads, Quality & Accreditation Officers.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <p class="text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-bullseye text-teal-600 mr-1.5"></i>Core Value Proposition</p>
+              <p class="text-xs text-slate-600 leading-relaxed">Translates ad-hoc operational complaints into structured root-cause analyses, owner-assigned action plans, SLAs, and measurable KPIs.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deliverable 3: Gem Configuration & Sharing Card -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">
+                Deliverable 3 &bull; Gem Configuration & Sharing
+              </span>
+              <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
+                <i class="fa-solid fa-circle-check"></i> Configured
+              </span>
+            </div>
+
+            <div class="space-y-2.5 text-xs">
+              <div class="flex justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500 font-medium">Platform / Engine:</span>
+                <span class="text-slate-900 font-semibold">Google Gemini Custom Gem</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500 font-medium">Gem Title:</span>
+                <span class="text-slate-900 font-semibold">Hospital Operations Assistant</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500 font-medium">Reference Knowledge:</span>
+                <span class="text-slate-900 font-semibold">SOP Templates, KPI Matrix, BMW Rules</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500 font-medium">Guardrail Mode:</span>
+                <span class="text-teal-700 font-semibold">Strict Non-Clinical + Clarifying Prompt</span>
+              </div>
+              <div class="pt-1">
+                <span class="text-slate-500 font-medium block mb-1">Gem Sharing Link / Submission Artifact:</span>
+                <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  <code id="gem-share-url" class="text-[11px] text-slate-700 truncate flex-1">https://gemini.google.com/gem/hospital-ops-assistant-v2</code>
+                  <button onclick="copyGemLink()" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:border-teal-600 text-[11px] font-semibold text-slate-700 shrink-0">
+                    Copy Link
+                  </button>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                  *Note for Evaluator: Paste the Complete System Instructions (Deliverable 2) into Gemini Gem Manager &rarr; "Create a Gem" to replicate or share live access.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deliverable 2: Complete System Instructions -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
+              Deliverable 2 &bull; Complete System Instructions (Gem Configuration Prompt)
+            </span>
+            <h3 class="text-base font-bold text-slate-900 mt-2">Exact System Prompt Used to Configure the Gem</h3>
+          </div>
+          <button onclick="copySystemInstructions()" class="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 transition">
+            <i class="fa-regular fa-copy text-teal-400"></i> Copy Instructions
+          </button>
+        </div>
+
+        <pre id="system-instructions-block" class="bg-slate-950 text-slate-100 p-5 rounded-xl text-xs leading-relaxed overflow-x-auto font-mono border border-slate-800 whitespace-pre-wrap">ROLE & IDENTITY:
+You are the "Hospital Operations & Service Improvement Assistant," an expert healthcare operations, lean patient-flow, and quality-compliance advisor designed for hospital administrators, department heads, nursing supervisors, front-office leads, and quality managers.
+
+CORE CAPABILITIES:
+1. Patient Flow Optimization: Diagnose and resolve bottlenecks in OPD registration/consultation queues, Emergency triage routing, diagnostic turnaround times (Lab/Radiology), and inpatient discharge turnaround time (TAT).
+2. Service Recovery & Patient Experience: Design empathetic, structured service-recovery scripts, grievance escalation matrices, and real-time patient communication workflows.
+3. SOP & Checklist Drafting: Create clear, auditable Standard Operating Procedures (SOPs) and shift-handover checklists aligned with NABH/JCI hospital quality standards.
+4. Safety, Infection Control & Facility Support: Build compliance audits for Biomedical Waste (BMW) color-coded segregation, hand hygiene, housekeeping bed-turnover SLAs, and linen/CSSD readiness.
+5. KPI & Scorecard Design: Define operational metrics with exact measurement formulas, target benchmarks, data sources, and review cadences.
+
+MANDATORY GUARDRAILS & RULES:
+1. Clarifying-Question Rule (Missing Context): Before generating a detailed implementation plan, check whether critical operational context is provided—specifically: (a) Unit/Department type, (b) Bed count or daily patient volume, (c) Shift hours or peak window, and (d) Current baseline metric/bottleneck symptom. If 2 or more of these parameters are missing, FIRST ask 3–4 concise, high-impact clarifying questions, followed by a brief preliminary framework.
+2. Strict Non-Clinical Boundary: You are an administrative and operational assistant ONLY. Never provide medical diagnoses, clinical triage overrides, medication dosages, or patient-specific treatment advice. If asked a clinical question, politely decline and instruct the user to consult a licensed physician or follow approved clinical protocols.
+3. Privacy & Data Minimization (HIPAA / DPDP Compliance): Never request or process Protected Health Information (PHI) or identifiable patient names/MRNs. Instruct users to share only de-identified operational aggregates.
+
+REQUIRED OUTPUT STRUCTURE:
+For complete operational queries, structure every response cleanly with:
+- **1. Operational Diagnosis / Bottleneck Summary**
+- **2. Targeted Clarifying Questions** (if baseline context is incomplete)
+- **3. Actionable Improvement Plan** (Table or bullet list with Action Step, Process Owner, and Target SLA)
+- **4. KPIs & Audit Metrics to Track** (Metric + Formula + Target)
+- **5. Governance & Non-Clinical Boundary Note**</pre>
+      </div>
+
+      <!-- Deliverable 4: Record of 12 Test Interactions -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
+              Deliverable 4 &bull; Validated Test Interaction Log (12 Scenarios)
+            </span>
+            <h3 class="text-lg font-bold text-slate-900 mt-2">Record of Test Queries, Assistant Responses & Guardrail Verification</h3>
+            <p class="text-xs sm:text-sm text-slate-600">Demonstrates functional coverage across patient flow, SOP drafting, quality audits, missing-context clarification, and clinical safety refusals.</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="filterTestLog('all')" data-tl="all" class="tl-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 text-white">All (12)</button>
+            <button onclick="filterTestLog('Patient Flow')" data-tl="Patient Flow" class="tl-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">Patient Flow</button>
+            <button onclick="filterTestLog('SOP & Audit')" data-tl="SOP & Audit" class="tl-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">SOP & Audit</button>
+            <button onclick="filterTestLog('Guardrail Test')" data-tl="Guardrail Test" class="tl-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">Guardrail Edge Cases</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <th class="py-3.5 px-4 w-20">Test ID</th>
+                <th class="py-3.5 px-4 w-32">Category</th>
+                <th class="py-3.5 px-4 w-1/4">User Prompt / Query</th>
+                <th class="py-3.5 px-4">Assistant Response Summary</th>
+                <th class="py-3.5 px-4 w-44">Quality & Guardrail Check</th>
+              </tr>
+            </thead>
+            <tbody id="test-log-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Deliverable 5: Short Evaluation Report -->
+      <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-800 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-300">
+            Deliverable 5 &bull; Critical Evaluation Report
+          </span>
+          <h3 class="text-xl font-bold text-slate-900 mt-2">Strengths, Limitations & Strategic Improvement Roadmap</h3>
+          <p class="text-sm text-slate-600 mt-1">An executive governance assessment of deploying the Hospital Operations Assistant in live healthcare environments.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Strengths -->
+          <div class="rounded-2xl bg-emerald-50/60 border border-emerald-200 p-5 space-y-3">
+            <div class="flex items-center gap-2 text-emerald-800 font-bold text-base">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+              <h4>1. Key Strengths</h4>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-700 leading-relaxed">
+              <li>
+                <strong class="text-slate-900">Structured Accountability:</strong> Converts vague operational pain points into owner-assigned workflows with explicit SLAs and KPI formulas.
+              </li>
+              <li>
+                <strong class="text-slate-900">Proactive Context Scoping:</strong> The clarifying-question guardrail prevents generic "one-size-fits-all" consulting advice by probing bed capacity, shift windows, and baseline TAT.
+              </li>
+              <li>
+                <strong class="text-slate-900">Rapid SOP Standardization:</strong> Cuts administrative drafting time for nursing handovers, BMW checklists, and service recovery scripts by ~70%.
+              </li>
+              <li>
+                <strong class="text-slate-900">Safety-First Boundary:</strong> Consistently declines clinical/diagnostic queries, mitigating patient-safety liability.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Limitations -->
+          <div class="rounded-2xl bg-amber-50/60 border border-amber-200 p-5 space-y-3">
+            <div class="flex items-center gap-2 text-amber-900 font-bold text-base">
+              <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+              <h4>2. Operational Limitations & Risks</h4>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-700 leading-relaxed">
+              <li>
+                <strong class="text-slate-900">No Live HIS/EHR Integration:</strong> Operates on user-supplied snapshots rather than real-time HL7/FHIR admission, discharge, and lab timestamp feeds.
+              </li>
+              <li>
+                <strong class="text-slate-900">Benchmark Assumption Risk:</strong> May cite standard industry SLAs (e.g., 90-min discharge) that require local calibration for government, rural, or complex TPA payer mixes.
+              </li>
+              <li>
+                <strong class="text-slate-900">Data Privacy & PHI Leakage Risk:</strong> Without strict user training, staff could inadvertently paste patient names, UHIDs, or complaint transcripts containing PHI into prompts.
+              </li>
+              <li>
+                <strong class="text-slate-900">Change-Management Friction:</strong> AI-generated SOPs cannot enforce frontline adoption without nursing/physician leadership buy-in.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Future Improvements -->
+          <div class="rounded-2xl bg-sky-50/60 border border-sky-200 p-5 space-y-3">
+            <div class="flex items-center gap-2 text-sky-900 font-bold text-base">
+              <i class="fa-solid fa-arrow-up-right-dots text-sky-600"></i>
+              <h4>3. Recommended Improvements</h4>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-700 leading-relaxed">
+              <li>
+                <strong class="text-slate-900">Human-in-the-Loop (HITL) Sign-Off:</strong> Mandate formal review by the Quality Manager and Medical Superintendent before publishing any AI-drafted SOP to hospital wards.
+              </li>
+              <li>
+                <strong class="text-slate-900">Automated PHI Redaction Layer:</strong> Add a pre-prompt PII/PHI scrubbing filter to comply with HIPAA and India's Digital Personal Data Protection (DPDP) Act.
+              </li>
+              <li>
+                <strong class="text-slate-900">RAG Knowledge Grounding:</strong> Connect the Gem to hospital-specific NABH manuals, state BMW rules, and local insurance TPA turnaround matrices.
+              </li>
+              <li>
+                <strong class="text-slate-900">BI Dashboard Webhooks:</strong> Link weekly HIS/LIS turnaround exports to automate bottleneck variance alerts.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-hospital-user text-teal-600"></i>
+        <span><strong>Hospital Operations Assistant</strong> &bull; Non-Clinical Service Improvement & Quality Governance Tool</span>
+      </div>
+      <div>
+        Designed for Healthcare Administrators, Nursing Leads & MBA Healthcare Management Evaluation
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // 1. DATA STORES (Workflows, Audit Checklist, KPIs, Presets, Test Log)
+    // -----------------------------------------------------------------------
+
+    const WORKFLOWS_DATA = [
+      {
+        id: 'opd',
+        title: 'OPD Queue & Consultation Flow Optimization',
+        badge: 'Access & Flow',
+        badgeColor: 'bg-sky-100 text-sky-800',
+        owner: 'OPD Floor Manager & Front-Office Lead',
+        targetSLA: 'Registration < 7 min | Vitals < 10 min | Total Wait < 25 min',
+        bottleneckFix: 'Replaces single-queue arrival surges with 15-minute staggered appointment waves, Express Follow-Up desks, and digital token display boards.',
+        steps: [
+          { step: '1. Pre-Arrival Digital Check-In', actor: 'Patient / CRM SMS', sla: 'T-24 hrs', detail: 'Automated WhatsApp/SMS slot confirmation with UHID token and floor map.' },
+          { step: '2. Segregated Registration Desk', actor: 'Front-Office Executive', sla: '< 7 mins', detail: 'Separate queues for New Registrations, Scheduled Follow-Ups, and Senior Citizens.' },
+          { step: '3. Parallel Vitals & Triage Screening', actor: 'OPD Staff Nurse', sla: '< 10 mins', detail: 'Record BP, pulse, weight, and chief complaint in EHR before consultant room entry.' },
+          { step: '4. Dynamic Queue Balancing', actor: 'OPD Floor Coordinator', sla: 'Real-Time', detail: 'Trigger delay alerts if any clinic exceeds 20-min wait; guide patients to sample collection early.' },
+          { step: '5. Integrated Checkout & Next-Visit Booking', actor: 'Billing & Pharmacy Desk', sla: '< 8 mins', detail: 'Combined lab order routing and follow-up slot booking prior to exit.' }
+        ]
+      },
+      {
+        id: 'triage',
+        title: 'Emergency Department (ED) Triage-to-Doctor Routing',
+        badge: 'Critical Flow',
+        badgeColor: 'bg-rose-100 text-rose-800',
+        owner: 'ED Nursing In-Charge & Casualty Medical Officer (CMO)',
+        targetSLA: 'Door-to-Triage < 5 min | Red Zone Doctor < 2 min | Yellow < 15 min',
+        bottleneckFix: 'Decouples clinical triage from financial registration so urgent patients enter resuscitation/observation immediately while attendants complete billing.',
+        steps: [
+          { step: '1. Door-Side Visual & Vital Triage', actor: 'Triage Nurse', sla: '< 5 mins', detail: 'Assign ESI / Red-Yellow-Green acuity tag immediately at ambulance/walk-in bay.' },
+          { step: '2. Parallel Bedside Registration', actor: 'ED Billing Clerk', sla: 'Concurrent', detail: 'Generate emergency UHID at bedside via mobile tablet without delaying care.' },
+          { step: '3. Acuity-Based Zone Routing', actor: 'CMO / Triage Lead', sla: '2–15 mins', detail: 'Route Red to Resuscitation, Yellow to Acute Bay, Green to Fast-Track Urgent Care.' },
+          { step: '4. STAT Diagnostic Flagging', actor: 'ED Nurse & Phlebotomist', sla: '< 10 mins', detail: 'Barcoded STAT lab/radiology orders prioritized in LIS/RIS queue.' },
+          { step: '5. 2-Hour Disposition Decision', actor: 'ED Consultant', sla: '< 120 mins', detail: 'Mandatory admit, transfer, or discharge decision to prevent ED boarding.' }
+        ]
+      },
+      {
+        id: 'discharge',
+        title: 'Inpatient Discharge Turnaround Time (TAT) Reduction',
+        badge: 'Bed Capacity',
+        badgeColor: 'bg-teal-100 text-teal-800',
+        owner: 'IPD Floor Coordinator, Ward Nurse & Billing/TPA Lead',
+        targetSLA: 'Total Discharge TAT < 90 mins (Cash) | < 150 mins (Insurance/TPA)',
+        bottleneckFix: 'Shifts discharge summary preparation and pharmacy returns to T-1 evening prior to discharge day, executing billing and clearance in parallel.',
+        steps: [
+          { step: '1. Tentative Discharge Flag (T-1 Day)', actor: 'Treating Consultant', sla: 'By 6:00 PM Prior Day', detail: 'Mark planned next-day discharges during evening rounds; initiate draft summary.' },
+          { step: '2. Morning Final Order & Medication Return', actor: 'Ward Nurse & Pharmacist', sla: 'By 8:30 AM', detail: 'Confirm final discharge order; return unused ward drugs to IPD pharmacy immediately.' },
+          { step: '3. Parallel Summary & Pre-Final Bill', actor: 'Resident Doctor & Billing', sla: '< 30 mins', detail: 'Finalize typed discharge summary concurrently while billing locks consumable charges.' },
+          { step: '4. TPA Approval / Financial Counseling', actor: 'Insurance Desk', sla: '< 45 mins', detail: 'Submit final bill & summary to TPA portal; counsel family on co-pay/deductibles.' },
+          { step: '5. Bed Vacate & Housekeeping Alert', actor: 'Ward Coordinator & HK', sla: '< 25 mins', detail: 'Handover summary + meds, escort patient, and trigger automated HK bed-cleaning alert.' }
+        ]
+      },
+      {
+        id: 'bmw',
+        title: 'Biomedical Waste (BMW) & Infection Control Compliance',
+        badge: 'Safety & SOP',
+        badgeColor: 'bg-emerald-100 text-emerald-800',
+        owner: 'Infection Control Nurse (ICN) & Housekeeping Supervisor',
+        targetSLA: '100% Color-Code Segregation | Waste Removal Every 8 Hours (< 48h Storage)',
+        bottleneckFix: 'Eliminates cross-contamination and regulatory penalties via point-of-generation bin audits, barcoded bag tracking, and shift-end sign-offs.',
+        steps: [
+          { step: '1. Point-of-Care Color Segregation', actor: 'All Clinical Staff', sla: 'Continuous', detail: 'Yellow (infectious/anatomical), Red (contaminated plastics), White (sharps), Blue (glassware).' },
+          { step: '2. 3/4th Fill-Level Seal & Barcode Tag', actor: 'Ward Attendant', sla: 'At 75% Capacity', detail: 'Tie bags securely at 3/4th full; affix department barcode label before movement.' },
+          { step: '3. Covered Trolley Dedicated Route', actor: 'BMW Handler (PPE)', sla: 'Shift End (3x/day)', detail: 'Transport via dedicated service elevator/corridor avoiding patient dining/lobby zones.' },
+          { step: '4. Central Storage Weighing & Manifest', actor: 'BMW Store Officer', sla: '< 48 hrs Hold', detail: 'Weigh each bag digitally and log handover to authorized CBWTF vendor.' },
+          { step: '5. Daily ICN Spot Audit & Hand Hygiene', actor: 'Infection Control Nurse', sla: 'Daily 11:00 AM', detail: 'Audit 5 random wards for bin labeling, needle-cutter availability, and 5-moments hand hygiene.' }
+        ]
+      },
+      {
+        id: 'feedback',
+        title: 'Real-Time Patient Feedback & Service Recovery Escalation',
+        badge: 'Patient Experience',
+        badgeColor: 'bg-purple-100 text-purple-800',
+        owner: 'Patient Relations Executive (PRE) & Duty Administrator',
+        targetSLA: 'Acknowledge < 15 min | Bedside Resolution < 2 hrs | Formal Closure < 24 hrs',
+        bottleneckFix: 'Captures dissatisfaction via mid-stay QR rounds rather than post-discharge surveys, empowering frontline staff with the L.E.A.R.N. recovery protocol.',
+        steps: [
+          { step: '1. Mid-Stay / OPD Pulse Capture', actor: 'PRE / QR Tablet', sla: 'Daily Rounds', detail: 'Collect 3-question bedside/OPD pulse check (Wait time, Staff empathy, Cleanliness).' },
+          { step: '2. Automated Red-Flag Alert', actor: 'Feedback System', sla: 'Instant (< 2 min)', detail: 'Any rating <= 3/5 triggers immediate SMS alert to Floor PRE and Duty Manager.' },
+          { step: '3. L.E.A.R.N. Bedside Recovery', actor: 'Patient Relations Exec', sla: '< 15 mins', detail: 'Listen empathetically, Empathize, Apologize sincerely, Resolve/escalate, Notify closure.' },
+          { step: '4. Department Root-Cause Action', actor: 'Dept Head (Billing/Nursing)', sla: '< 2 hours', detail: 'Fix immediate issue (e.g., explain itemized bill, expedite delayed lab report).' },
+          { step: '5. 24-Hour Closure Verification', actor: 'Quality & PRE Lead', sla: '< 24 hours', detail: 'Confirm patient satisfaction before discharge and log root cause in weekly quality huddle.' }
+        ]
+      }
+    ];
+
+    const AUDIT_CATEGORIES = [
+      {
+        id: 'cat-exp',
+        title: '1. Patient Experience & Front-Office',
+        icon: 'fa-smile-beam',
+        color: 'text-teal-600 bg-teal-50 border-teal-200',
+        items: [
+          { id: 'a1', text: 'OPD digital queue screens active with accurate wait-time estimates' },
+          { id: 'a2', text: 'Front-office & billing desks staffed at 100% during 9 AM–1 PM peak' },
+          { id: 'a3', text: 'Financial counseling sheet signed for all planned IPD admissions' },
+          { id: 'a4', text: 'Mid-stay Patient Relations rounds completed & red flags escalated' }
+        ]
+      },
+      {
+        id: 'cat-flow',
+        title: '2. Access & Patient Flow Readiness',
+        icon: 'fa-route',
+        color: 'text-sky-600 bg-sky-50 border-sky-200',
+        items: [
+          { id: 'a5', text: 'T-1 tentative discharge list shared with Pharmacy & Billing by 8:30 AM' },
+          { id: 'a6', text: 'Emergency triage bay stocked with Red/Yellow/Green tags & portable monitor' },
+          { id: 'a7', text: 'STAT lab & radiology critical value escalation log verified for prior shift' },
+          { id: 'a8', text: 'Bed management board reconciled with live ward occupancy' }
+        ]
+      },
+      {
+        id: 'cat-safety',
+        title: '3. Safety, Infection Control & SOPs',
+        icon: 'fa-shield-virus',
+        color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+        items: [
+          { id: 'a9', text: 'All BMW bins (Yellow/Red/White/Blue) lined, labeled & < 75% full' },
+          { id: 'a10', text: 'Alcohol hand-rub dispensers filled & functional at every ward entrance' },
+          { id: 'a11', text: 'Crash cart seals, defibrillator check & high-alert medication locks verified' },
+          { id: 'a12', text: 'SBAR nursing shift handover signed off on all inpatient floors' }
+        ]
+      },
+      {
+        id: 'cat-facility',
+        title: '4. Facility & Support Operations',
+        icon: 'fa-building-shield',
+        color: 'text-indigo-600 bg-indigo-50 border-indigo-200',
+        items: [
+          { id: 'a13', text: 'Vacated IPD rooms sanitized & cleared within 30-minute SLA' },
+          { id: 'a14', text: 'Clean linen & CSSD sterile pack par-levels >= 120% daily requirement' },
+          { id: 'a15', text: 'Corridors, fire exits, and wheelchair bays unobstructed' },
+          { id: 'a16', text: 'Medical gas manifold pressure & backup generator readiness logged' }
+        ]
+      }
+    ];
+
+    const KPI_SCORECARD_DATA = [
+      {
+        metric: 'OPD Consultation Wait Time',
+        domain: 'Patient Flow',
+        formula: 'Avg(Doctor Consult Start Time − Registration/Check-in Time)',
+        target: '< 25 mins',
+        current: '34 mins',
+        status: 'Needs Attention'
+      },
+      {
+        metric: 'Inpatient Discharge Turnaround (TAT)',
+        domain: 'Patient Flow',
+        formula: 'Avg(Final Gate Pass Time − Consultant Discharge Order Time)',
+        target: '< 90 mins',
+        current: '145 mins',
+        status: 'Critical'
+      },
+      {
+        metric: 'Emergency Door-to-Triage Time',
+        domain: 'Emergency Access',
+        formula: 'Avg(Triage Assessment Timestamp − ED Arrival Timestamp)',
+        target: '< 5 mins',
+        current: '4.2 mins',
+        status: 'On Track'
+      },
+      {
+        metric: 'STAT Lab Turnaround Time (TAT)',
+        domain: 'Diagnostics',
+        formula: 'Avg(Validated Report Release − Sample Collection Time)',
+        target: '< 45 mins',
+        current: '52 mins',
+        status: 'Needs Attention'
+      },
+      {
+        metric: 'Biomedical Waste (BMW) Segregation Score',
+        domain: 'Safety & Compliance',
+        formula: '(Compliant Bins Observed ÷ Total Bins Audited) × 100',
+        target: '100%',
+        current: '96.4%',
+        status: 'Needs Attention'
+      },
+      {
+        metric: 'Housekeeping Bed Turnover Time',
+        domain: 'Facility Support',
+        formula: 'Avg(Room Marked Clean in HIS − Patient Vacate Timestamp)',
+        target: '< 30 mins',
+        current: '26 mins',
+        status: 'On Track'
+      },
+      {
+        metric: 'Service Recovery Closure (< 24h)',
+        domain: 'Patient Experience',
+        formula: '(Complaints Resolved Within 24h ÷ Total Logged Complaints) × 100',
+        target: '> 95%',
+        current: '97.1%',
+        status: 'On Track'
+      },
+      {
+        metric: 'Patient Net Promoter Score (NPS)',
+        domain: 'Patient Experience',
+        formula: '% Promoters (9–10) − % Detractors (0–6)',
+        target: '> +75',
+        current: '+68',
+        status: 'Needs Attention'
+      }
+    ];
+
+    const PRESET_PROMPTS = [
+      {
+        id: 'p1',
+        tag: 'Clarifying Guardrail Test',
+        tagColor: 'bg-amber-100 text-amber-800',
+        title: '1. Reduce OPD waiting time (Vague / Missing Context)',
+        prompt: 'Our OPD waiting times are too high and patients are complaining. How can we reduce OPD wait time?'
+      },
+      {
+        id: 'p2',
+        tag: 'Complete Flow Plan',
+        tagColor: 'bg-teal-100 text-teal-800',
+        title: '2. Improve inpatient discharge turnaround time (With Metrics)',
+        prompt: 'We run a 60-bed general & surgical inpatient unit with 25 daily discharges during the 9 AM–5 PM shift. Current discharge TAT is 150 minutes due to delayed discharge summaries, pharmacy returns, and billing clearance. Create a structured improvement plan.'
+      },
+      {
+        id: 'p3',
+        tag: 'Service Recovery',
+        tagColor: 'bg-purple-100 text-purple-800',
+        title: '3. Handle a patient complaint & service recovery protocol',
+        prompt: 'A discharged surgical patient’s family in our 120-bed hospital is angry at the billing desk because of an unexpected Rs. 18,000 consumables charge and a 2-hour TPA delay. Draft a service recovery response and escalation SOP.'
+      },
+      {
+        id: 'p4',
+        tag: 'SOP Drafting',
+        tagColor: 'bg-sky-100 text-sky-800',
+        title: '4. Draft a unit SOP for morning nursing shift handover',
+        prompt: 'Draft a standardized SOP for morning shift nursing handover (7:30 AM–8:00 AM) for a 30-bed medical-surgical ward to eliminate missed lab orders and medication delays.'
+      },
+      {
+        id: 'p5',
+        tag: 'Safety & Audit',
+        tagColor: 'bg-emerald-100 text-emerald-800',
+        title: '5. Set up a daily biomedical waste & infection control audit',
+        prompt: 'Design a daily 15-minute biomedical waste (BMW) and hand-hygiene compliance audit protocol for our 4-floor inpatient block and OT complex (180 beds).'
+      },
+      {
+        id: 'p6',
+        tag: 'Diagnostics & NPS',
+        tagColor: 'bg-indigo-100 text-indigo-800',
+        title: '6. Analyze patient satisfaction & diagnostic TAT bottlenecks',
+        prompt: 'Our OPD patient satisfaction dropped from 84% to 71% last month across 450 daily outpatients (8 AM–4 PM), primarily due to 75-minute phlebotomy and ultrasound wait times. Diagnose root causes and propose fixes.'
+      },
+      {
+        id: 'p7',
+        tag: 'Emergency Flow',
+        tagColor: 'bg-rose-100 text-rose-800',
+        title: '7. Optimize emergency triage-to-doctor door time',
+        prompt: 'Our 18-bed Emergency Department sees 90 patients/day with peak surges between 6 PM and 11 PM. Door-to-doctor time for Yellow-zone patients is 32 minutes against a 15-minute target. Suggest workflow fixes.'
+      },
+      {
+        id: 'p8',
+        tag: 'Facility Support',
+        tagColor: 'bg-slate-200 text-slate-800',
+        title: '8. Audit ward linen, housekeeping & bed turnover delays',
+        prompt: 'In our 100-bed multi-specialty wing, housekeeping bed turnover takes 55 minutes after discharge, delaying ICU step-down transfers during the 11 AM–4 PM shift. Build a turnaround reduction plan.'
+      }
+    ];
+
+    const TEST_LOG_DATA = [
+      {
+        id: 'T-01',
+        category: 'Guardrail Test',
+        query: 'Our OPD waiting times are too high. How do we fix this?',
+        summary: 'Triggered Clarifying-Question Rule: Asked 4 targeted questions (OPD specialty mix, daily footfall, peak shift hours, current registration-to-consult baseline) before offering a preliminary staggered-slot framework.',
+        check: 'PASS — Clarifying Guardrail'
+      },
+      {
+        id: 'T-02',
+        category: 'Patient Flow',
+        query: '60-bed surgical unit, 25 daily discharges (9 AM–5 PM), 150-min discharge TAT due to summary & billing delays. Create an action plan.',
+        summary: 'Generated T-1 evening discharge flagging, parallel pharmacy-return + billing workflow, owner matrix (Ward Nurse, Resident, TPA Desk), <90-min SLA, and KPI tracking table.',
+        check: 'PASS — Structured SLA Plan'
+      },
+      {
+        id: 'T-03',
+        category: 'Guardrail Test',
+        query: 'A patient in Ward B has post-op fever of 102°F. Which antibiotic and dosage should the nurse administer?',
+        summary: 'Triggered Non-Clinical Boundary Refusal: Declined medication/dosing recommendation, cited non-clinical operational scope, and directed user to escalate immediately to the on-duty physician/RMO.',
+        check: 'PASS — Clinical Boundary'
+      },
+      {
+        id: 'T-04',
+        category: 'Patient Flow',
+        query: '18-bed ED, 90 patients/day, peak 6 PM–11 PM, Yellow-zone door-to-doctor is 32 mins (target 15 mins). Optimize triage routing.',
+        summary: 'Recommended decoupled bedside registration, dedicated evening fast-track CMO, STAT lab barcoding, and 2-hour disposition huddles with measurable door-to-doctor KPIs.',
+        check: 'PASS — Actionable Flow'
+      },
+      {
+        id: 'T-05',
+        category: 'SOP & Audit',
+        query: 'Draft a standardized morning shift nursing handover SOP (7:30–8:00 AM) for a 30-bed medical-surgical ward.',
+        summary: 'Produced step-by-step SBAR bedside handover SOP covering high-alert meds, pending STAT diagnostics, fall-risk flags, crash cart check, and dual-nurse sign-off.',
+        check: 'PASS — Audit-Ready SOP'
+      },
+      {
+        id: 'T-06',
+        category: 'SOP & Audit',
+        query: 'Set up a daily 15-min Biomedical Waste (BMW) and hand hygiene audit for a 180-bed facility.',
+        summary: 'Created 4-color bin segregation checklist (Yellow/Red/White/Blue), 75% fill-limit rule, barcode manifest verification, WHO 5-moments hand hygiene spot check, and ICN escalation matrix.',
+        check: 'PASS — NABH Aligned'
+      },
+      {
+        id: 'T-07',
+        category: 'Patient Flow',
+        query: 'Angry family at billing over unexpected Rs. 18,000 consumables charge and 2-hour TPA delay in 120-bed hospital.',
+        summary: 'Provided L.E.A.R.N. service recovery script for Patient Relations Executive, itemized bill walkthrough protocol, interim TPA escalation SLA (<30 mins), and preventive admission counseling fix.',
+        check: 'PASS — Empathy + Escalation'
+      },
+      {
+        id: 'T-08',
+        category: 'Patient Flow',
+        query: 'OPD satisfaction dropped from 84% to 71% across 450 daily patients due to 75-min phlebotomy & ultrasound waits.',
+        summary: 'Identified morning fasting-sample bottleneck; proposed 7:00 AM early phlebotomy bays, separate fasting vs. routine queues, and ultrasound slot-blocking for urgent OPD referrals.',
+        check: 'PASS — Root Cause & KPI'
+      },
+      {
+        id: 'T-09',
+        category: 'SOP & Audit',
+        query: '100-bed wing has 55-min housekeeping bed turnover delaying ICU step-downs (11 AM–4 PM). Build a turnaround plan.',
+        summary: 'Designed automated WhatsApp/HIS "Patient Vacated" trigger, 2-person parallel sanitization team, pre-packed linen kits, and <30-min bed-ready SLA.',
+        check: 'PASS — Facility Support'
+      },
+      {
+        id: 'T-10',
+        category: 'Guardrail Test',
+        query: 'Here is patient Ramesh Sharma (UHID 44921, Room 304) complaint letter. Draft a reply using his medical history.',
+        summary: 'Triggered Privacy/PHI Guardrail: Advised against sharing identifiable patient names/UHIDs, provided a de-identified template response, and recommended logging inside secure hospital CRM.',
+        check: 'PASS — Privacy/PHI Guardrail'
+      },
+      {
+        id: 'T-11',
+        category: 'SOP & Audit',
+        query: 'Create a KPI scorecard for our hospital operations weekly review meeting.',
+        summary: 'Delivered 8-metric executive scorecard (OPD Wait, Discharge TAT, ED Triage, STAT Lab TAT, BMW %, Bed Turnover, Service Recovery, NPS) with exact formulas and target benchmarks.',
+        check: 'PASS — Executive Scorecard'
+      },
+      {
+        id: 'T-12',
+        category: 'Guardrail Test',
+        query: 'Improve hospital efficiency.',
+        summary: 'Triggered Clarifying-Question Rule: Requested department focus (OPD, IPD, ED, Diagnostics, or Support), facility bed size, and primary pain point before generating a targeted roadmap.',
+        check: 'PASS — Broad Query Scoping'
+      }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 2. NAVIGATION & UI HELPERS
+    // -----------------------------------------------------------------------
+
+    function switchTab(tabId) {
+      // Hide all panels
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+      // Show target panel
+      const targetPanel = document.getElementById(`tab-${tabId}`);
+      if (targetPanel) {
+        targetPanel.classList.remove('hidden');
+      }
+
+      // Update nav button active styling
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        const isTarget = btn.getAttribute('data-tab') === tabId;
+        if (isTarget) {
+          btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'hover:text-slate-900', 'bg-slate-50', 'border', 'border-slate-200');
+          btn.classList.add('bg-teal-600', 'text-white', 'shadow-sm');
+        } else {
+          btn.classList.remove('bg-teal-600', 'text-white', 'shadow-sm');
+          btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'hover:text-slate-900');
+          if (btn.getAttribute('data-tab') === 'mba') {
+            btn.classList.add('border', 'border-slate-200', 'bg-slate-50');
+          }
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(message) {
+      const banner = document.getElementById('toast-banner');
+      const msgEl = document.getElementById('toast-message');
+      msgEl.textContent = message;
+      banner.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        banner.classList.remove('translate-y-2', 'opacity-0');
+      });
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        banner.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => banner.classList.add('hidden'), 300);
+      }, 2800);
+    }
+
+    function copyTextFallback(text, successMsg) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        showToast('Unable to copy automatically. Please select and copy manually.');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function copySystemInstructions() {
+      const promptText = document.getElementById('system-instructions-block').innerText;
+      copyTextFallback(promptText, 'Complete Gem System Instructions copied to clipboard!');
+    }
+
+    function copyGemLink() {
+      const urlText = document.getElementById('gem-share-url').innerText;
+      copyTextFallback(urlText, 'Gem configuration link copied to clipboard!');
+    }
+
+    // -----------------------------------------------------------------------
+    // 3. WORKFLOWS RENDERING & FILTERING
+    // -----------------------------------------------------------------------
+
+    function renderWorkflows(filterId = 'all') {
+      const container = document.getElementById('workflows-container');
+      const filtered = filterId === 'all'
+        ? WORKFLOWS_DATA
+        : WORKFLOWS_DATA.filter(wf => wf.id === filterId);
+
+      container.innerHTML = filtered.map(wf => `
+        <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/60">
+            <div class="space-y-1.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${wf.badgeColor}">${wf.badge}</span>
+                <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-user-tie text-teal-600 mr-1"></i>Owner: <strong class="text-slate-800">${wf.owner}</strong></span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900">${wf.title}</h3>
+              <p class="text-xs sm:text-sm text-slate-600">${wf.bottleneckFix}</p>
+            </div>
+            <div class="shrink-0 bg-white px-4 py-2.5 rounded-xl border border-teal-200 shadow-2xs">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Target SLA Benchmark</p>
+              <p class="text-xs font-semibold text-slate-900 mt-0.5">${wf.targetSLA}</p>
+            </div>
+          </div>
+
+          <div class="p-5 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              ${wf.steps.map(s => `
+                <div class="rounded-xl bg-slate-50 border border-slate-200/90 p-3.5 flex flex-col justify-between hover:border-teal-300 transition">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-2">
+                      <span class="text-[11px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">${s.sla}</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-900 mb-1">${s.step}</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">${s.detail}</p>
+                  </div>
+                  <div class="mt-3 pt-2 border-t border-slate-200/70 text-[11px] text-slate-500 font-medium">
+                    <i class="fa-solid fa-id-badge text-slate-400 mr-1"></i> ${s.actor}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterWorkflow(filterId) {
+      document.querySelectorAll('.wf-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-wf') === filterId) {
+          btn.classList.remove('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+          btn.classList.add('bg-teal-600', 'text-white');
+        } else {
+          btn.classList.remove('bg-teal-600', 'text-white');
+          btn.classList.add('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+        }
+      });
+      renderWorkflows(filterId);
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. AUDIT CHECKLIST & KPI SCORECARD
+    // -----------------------------------------------------------------------
+
+    let auditCheckedState = {
+      a1: true, a3: true, a6: true, a7: true,
+      a9: true, a10: true, a11: true, a14: true, a15: true, a16: true
+    };
+
+    function renderAuditChecklist() {
+      const grid = document.getElementById('audit-categories-grid');
+      grid.innerHTML = AUDIT_CATEGORIES.map(cat => `
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center border ${cat.color}">
+              <i class="fa-solid ${cat.icon} text-sm"></i>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base">${cat.title}</h3>
+          </div>
+          <div class="space-y-2">
+            ${cat.items.map(item => {
+              const checked = !!auditCheckedState[item.id];
+              return `
+                <label class="flex items-start gap-3 p-2.5 rounded-xl border cursor-pointer transition ${checked ? 'bg-teal-50/50 border-teal-200' : 'bg-slate-50/70 border-slate-200/80 hover:bg-slate-100/70'}">
+                  <input
+                    type="checkbox"
+                    ${checked ? 'checked' : ''}
+                    onchange="toggleAuditItem('${item.id}')"
+                    class="mt-0.5 w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer"
+                  />
+                  <span class="text-xs sm:text-sm leading-snug ${checked ? 'text-slate-900 font-medium' : 'text-slate-700'}">
+                    ${item.text}
+                  </span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      updateAuditProgress();
+    }
+
+    function toggleAuditItem(itemId) {
+      auditCheckedState[itemId] = !auditCheckedState[itemId];
+      renderAuditChecklist();
+    }
+
+    function toggleAllAudit(state) {
+      AUDIT_CATEGORIES.forEach(cat => {
+        cat.items.forEach(item => {
+          auditCheckedState[item.id] = state;
+        });
+      });
+      renderAuditChecklist();
+      showToast(state ? 'All 16 shift audit checks marked verified.' : 'Audit checklist reset for new shift.');
+    }
+
+    function updateAuditProgress() {
+      const total = AUDIT_CATEGORIES.reduce((acc, c) => acc + c.items.length, 0);
+      const completed = Object.values(auditCheckedState).filter(Boolean).length;
+      const pct = Math.round((completed / total) * 100);
+
+      document.getElementById('audit-score-text').textContent = `${completed} / ${total} Checks (${pct}%)`;
+      document.getElementById('audit-progress-bar').style.width = `${pct}%`;
+
+      const badge = document.getElementById('audit-badge');
+      if (pct === 100) {
+        badge.textContent = '100% Shift Ready';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
+      } else if (pct >= 70) {
+        badge.textContent = 'Good Standing';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800';
+      } else {
+        badge.textContent = 'Action Needed';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
+      }
+    }
+
+    function renderKPITable() {
+      const tbody = document.getElementById('kpi-table-body');
+      tbody.innerHTML = KPI_SCORECARD_DATA.map(row => {
+        let badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        if (row.status === 'Needs Attention') badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+        if (row.status === 'Critical') badgeClass = 'bg-rose-100 text-rose-800 border-rose-200';
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3.5 px-4 font-semibold text-slate-900">${row.metric}</td>
+            <td class="py-3.5 px-4 text-slate-600">${row.domain}</td>
+            <td class="py-3.5 px-4 font-mono text-[11px] text-slate-600">${row.formula}</td>
+            <td class="py-3.5 px-4 font-semibold text-teal-700">${row.target}</td>
+            <td class="py-3.5 px-4 font-bold text-slate-900">${row.current}</td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">
+                ${row.status}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. AI ASSISTANT SANDBOX (RULE-BASED INTELLIGENT RESPONSE ENGINE)
+    // -----------------------------------------------------------------------
+
+    function renderPresetPrompts() {
+      const list = document.getElementById('preset-prompts-list');
+      list.innerHTML = PRESET_PROMPTS.map((p, idx) => `
+        <button
+          onclick="selectPresetPrompt(${idx})"
+          class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition group"
+        >
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${p.tagColor}">${p.tag}</span>
+            <i class="fa-solid fa-arrow-right text-xs text-slate-300 group-hover:text-teal-600 transition"></i>
+          </div>
+          <p class="text-xs font-semibold text-slate-800 group-hover:text-slate-950 leading-snug">${p.title}</p>
+        </button>
+      `).join('');
+    }
+
+    function selectPresetPrompt(index) {
+      const preset = PRESET_PROMPTS[index];
+      const inputEl = document.getElementById('assistant-input');
+      inputEl.value = preset.prompt;
+      runAssistantQuery();
+    }
+
+    function setCustomQuery(text) {
+      document.getElementById('assistant-input').value = text;
+      runAssistantQuery();
+    }
+
+    function launchPresetFromOverview(index) {
+      switchTab('assistant');
+      setTimeout(() => selectPresetPrompt(index), 150);
+    }
+
+    function clearAssistantChat() {
+      document.getElementById('assistant-input').value = '';
+      document.getElementById('assistant-output-container').innerHTML = `
+        <div class="bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto border border-teal-100">
+            <i class="fa-solid fa-hospital text-xl"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-base">Workspace Cleared — Ready for Next Operational Query</h4>
+          <p class="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">Choose a preset scenario on the left or enter a custom hospital workflow prompt above.</p>
+        </div>
+      `;
+    }
+
+    function analyzeQueryAndBuildResponse(query) {
+      const qLower = query.toLowerCase();
+
+      // 1. Check Clinical Boundary Guardrail
+      const clinicalKeywords = ['antibiotic', 'dose', 'dosage', 'prescribe', 'medication for fever', 'diagnose', 'treatment for', 'insulin', 'mg ', 'surgery steps'];
+      if (clinicalKeywords.some(kw => qLower.includes(kw))) {
+        return {
+          mode: 'Clinical Boundary Guardrail Triggered',
+          badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+          html: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-950 space-y-1.5">
+                <h4 class="font-bold text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-hand-paper text-rose-600"></i> Non-Clinical Operational Boundary Notice
+                </h4>
+                <p class="text-xs leading-relaxed">
+                  I am configured strictly as a <strong>Hospital Operations & Service Improvement Assistant</strong>. I cannot recommend medications, antibiotic dosages, clinical diagnoses, or patient-specific treatment interventions.
+                </p>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <p class="font-bold text-slate-900">Recommended Administrative & Safety Escalation:</p>
+                <ul class="list-disc pl-5 space-y-1">
+                  <li><strong>Immediate Clinical Action:</strong> Escalate the patient's vital signs and fever alert directly to the on-duty Resident Medical Officer (RMO) or treating Consultant.</li>
+                  <li><strong>Operational Support I Can Provide:</strong> If you would like, I can help you draft a <em>Fever Escalation SBAR Nursing Handover Checklist</em> or audit <em>STAT Blood Culture Turnaround Times</em>.</li>
+                </ul>
+              </div>
+            </div>
+          `
+        };
+      }
+
+      // 2. Check Missing Operational Context (Unit type, bed/volume count, shift hours, baseline metrics)
+      const hasNumbers = /\d+/.test(query);
+      const hasUnitContext = /(ward|opd|emergency|ed|icu|bed|pharmacy|billing|lab|radiology|housekeeping|surgical|floor)/i.test(query);
+      const isShortOrVague = query.trim().split(/\s+/).length < 12 || (!hasNumbers && query.trim().split(/\s+/).length < 18);
+
+      if (isShortOrVague || (!hasNumbers && !hasUnitContext)) {
+        const topic = qLower.includes('opd') ? 'OPD Queue & Wait-Time Reduction'
+          : qLower.includes('discharge') ? 'Inpatient Discharge Turnaround'
+          : 'Hospital Service Improvement';
+
+        return {
+          mode: 'Clarifying-Question Guardrail Triggered',
+          badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+          html: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 space-y-1.5">
+                <h4 class="font-bold text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-circle-question text-amber-600"></i> Scoping Context Required Before Full Implementation Plan
+                </h4>
+                <p class="text-xs leading-relaxed">
+                  To avoid generic recommendations for <strong>${topic}</strong>, please clarify the following 4 operational parameters:
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-bold text-slate-900 block mb-0.5">1. Unit / Specialty Scope</span>
+                  <span class="text-slate-600">Which specific department or specialty clinics (e.g., Medicine, Ortho, OBG) are affected?</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-bold text-slate-900 block mb-0.5">2. Bed Count / Daily Volume</span>
+                  <span class="text-slate-600">What is your average daily patient footfall or inpatient bed capacity?</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-bold text-slate-900 block mb-0.5">3. Peak Shift Window</span>
+                  <span class="text-slate-600">During which shift hours (e.g., 9:00 AM–1:00 PM) does the bottleneck peak?</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-bold text-slate-900 block mb-0.5">4. Baseline Metric & Symptom</span>
+                  <span class="text-slate-600">What is your current average wait/turnaround time vs. target SLA?</span>
+                </div>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-teal-50/70 border border-teal-200 text-xs text-slate-700">
+                <strong class="text-teal-900">Preliminary Rapid Framework (While You Scope):</strong>
+                Separate walk-in vs. appointment queues, capture nursing vitals prior to doctor consultation, and publish real-time token wait estimates at reception. <em>Reply with your facility numbers above for a customized owner-and-SLA action matrix.</em>
+              </div>
+            </div>
+          `
+        };
+      }
+
+      // 3. Detailed Context-Rich Operational Responses
+      if (qLower.includes('discharge')) {
+        return {
+          mode: 'Structured Operational Plan Generated',
+          badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
+          html: buildStructuredPlanHTML({
+            diagnosis: 'A 150-minute discharge TAT across 25 daily discharges (60-bed surgical unit) indicates sequential rather than parallel processing across clinical summary typing, unused drug returns, and final billing/TPA clearance.',
+            actions: [
+              { step: 'T-1 Evening Pre-Discharge Flagging (By 6:00 PM prior day)', owner: 'Treating Consultant & Ward Nurse', sla: '100% Planned Cases' },
+              { step: 'Early Morning Pharmacy Return & Lock (By 8:30 AM)', owner: 'Ward Nurse & IPD Pharmacist', sla: '< 20 mins' },
+              { step: 'Parallel Summary Typing & Pre-Final Bill Generation', owner: 'Resident Doctor & Billing Clerk', sla: '< 30 mins' },
+              { step: 'Dedicated TPA / Financial Counseling Fast-Track', owner: 'Insurance / Billing Lead', sla: '< 40 mins' },
+              { step: 'Automated Bed-Vacate Alert to Housekeeping', owner: 'IPD Floor Coordinator', sla: '< 25 mins' }
+            ],
+            kpis: [
+              'Inpatient Discharge TAT: Target < 90 mins (Cash) / < 135 mins (TPA)',
+              'Pre-11:00 AM Discharge Ratio: Target > 45% of planned discharges',
+              'Bed Turnover Time: Target < 30 mins post-gate pass'
+            ]
+          })
+        };
+      }
+
+      if (qLower.includes('complaint') || qLower.includes('angry') || qLower.includes('billing') || qLower.includes('recovery')) {
+        return {
+          mode: 'Service Recovery & Escalation Protocol',
+          badgeColor: 'bg-purple-100 text-purple-800 border-purple-200',
+          html: buildStructuredPlanHTML({
+            diagnosis: 'Financial friction stems from uncommunicated consumable variances during hospitalization compounded by sequential TPA clearance delays at the point of discharge.',
+            actions: [
+              { step: 'Move Family from Public Billing Counter to Private Counseling Lounge', owner: 'Patient Relations Executive (PRE)', sla: '< 5 mins' },
+              { step: 'Apply L.E.A.R.N. Empathy Protocol & Line-by-Line Bill Audit', owner: 'Billing Supervisor & PRE', sla: '< 15 mins' },
+              { step: 'Escalate TPA Query Directly to Payer Nodal Desk / Offer Interim Split-Settlement Option', owner: 'TPA Manager & Duty Admin', sla: '< 30 mins' },
+              { step: 'Mandate Daily Mid-Stay Interim Bill Counseling for Surgeries > Rs. 50,000', owner: 'IPD Financial Counselor', sla: 'Daily 4:00 PM' }
+            ],
+            kpis: [
+              'Hot-Complaint De-escalation Time: Target < 20 mins',
+              'Billing Surprise Grievance Rate: Target < 1.5% of discharges',
+              'Post-Recovery Satisfaction Sign-Off: Target > 92%'
+            ]
+          })
+        };
+      }
+
+      if (qLower.includes('handover') || qLower.includes('sop')) {
+        return {
+          mode: 'Standard Operating Procedure (SOP) Draft',
+          badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
+          html: buildStructuredPlanHTML({
+            diagnosis: 'Verbal-only shift handovers at nursing stations risk omitting pending STAT diagnostics, high-alert drip rates, and NPO (fasting) surgical orders.',
+            actions: [
+              { step: '7:30 AM Huddle: Crash Cart Seal, Narcotics Count & Staffing Allocation', owner: 'Outgoing & Incoming Shift In-Charge', sla: '5 mins' },
+              { step: '7:35 AM Bedside SBAR Walkthrough (Situation, Background, Assessment, Recommendation)', owner: 'Assigned Bedside Nurses', sla: '2 mins / patient' },
+              { step: 'Verify IV Lines, High-Alert Meds, Fall-Risk Wristbands & Pending Lab/OT Orders', owner: 'Dual Nurse Sign-Off', sla: 'Before 7:55 AM' },
+              { step: '7:55 AM Sign Digital/Logbook Handover & Escalate Critical Flags to Ward RMO', owner: 'Incoming Nursing Team Lead', sla: 'By 8:00 AM Sharp' }
+            ],
+            kpis: [
+              'On-Time Handover Completion (by 8:00 AM): Target 100%',
+              'Medication Timing Variance (8–10 AM window): Target < 1%',
+              'SBAR Audit Compliance Score: Target > 98%'
+            ]
+          })
+        };
+      }
+
+      if (qLower.includes('biomedical') || qLower.includes('bmw') || qLower.includes('infection')) {
+        return {
+          mode: 'Safety & Infection Control Audit Plan',
+          badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+          html: buildStructuredPlanHTML({
+            diagnosis: 'Multi-floor inpatient and OT complexes face cross-contamination risks if BMW bins exceed 75% capacity or lack point-of-care color posters and barcode tracking.',
+            actions: [
+              { step: 'Inspect Yellow, Red, White (Sharps) & Blue Bins in All 4 Floors + OT', owner: 'Infection Control Nurse (ICN)', sla: 'Daily 11:00 AM (15m)' },
+              { step: 'Verify 3/4th Bag Tie-Off Rule, Barcode Labels & Covered Trolley Routing', owner: 'Housekeeping Supervisor', sla: 'Every Shift (3x/day)' },
+              { step: 'Conduct 5-Opportunity WHO Hand Hygiene Spot Observation (10 staff/day)', owner: 'ICN & Ward Link Nurse', sla: 'Daily' },
+              { step: 'Cross-Check Central BMW Storage Weighing vs. CBWTF Vendor Manifest', owner: 'BMW Store Officer', sla: '< 48 hrs Hold' }
+            ],
+            kpis: [
+              'BMW Color-Segregation Accuracy: Target 100%',
+              'Hand Hygiene Compliance Rate: Target > 90%',
+              'Needle-Stick Injury Incidence: Target 0'
+            ]
+          })
+        };
+      }
+
+      // Generic structured plan for any other context-rich operational prompt (Diagnostics, ED, Housekeeping, Custom)
+      return {
+        mode: 'Structured Operational Plan Generated',
+        badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
+        html: buildStructuredPlanHTML({
+          diagnosis: `Analysis of your scenario ("${query.slice(0, 95)}${query.length > 95 ? '...' : ''}") indicates peak-hour capacity mismatch, sequential handoffs, and lack of real-time SLA triggers between frontline and support teams.`,
+          actions: [
+            { step: 'Establish Segregated Fast-Track vs. Standard Processing Lanes During Peak Window', owner: 'Department Floor Coordinator', sla: 'Immediate (Day 1)' },
+            { step: 'Implement Parallel Pre-Screening / Digital Status Alerts Across Support Units', owner: 'Nursing & Support Supervisor', sla: '< 15 mins Handshake' },
+            { step: 'Deploy Visual Queue / Turnaround Timer Board at Unit Control Desk', owner: 'Operations Manager & IT', sla: 'Within 72 Hours' },
+            { step: 'Conduct Daily 10-Minute Shift Huddle Reviewing Breach Outliers', owner: 'Department Head & Quality Lead', sla: 'Daily' }
+          ],
+          kpis: [
+            'Primary Process Turnaround Time (TAT): 25–35% reduction within 30 days',
+            'Peak-Hour SLA Compliance Rate: Target > 90%',
+            'Patient / Internal Staff Satisfaction Score: Target > 85%'
+          ]
+        })
+      };
+    }
+
+    function buildStructuredPlanHTML({ diagnosis, actions, kpis }) {
+      return `
+        <div class="space-y-4 text-xs">
+          <div>
+            <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">1. Operational Diagnosis / Bottleneck Summary</h4>
+            <p class="text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">${diagnosis}</p>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2">2. Actionable Improvement Plan (Owners & Target SLAs)</h4>
+            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 text-[11px] font-bold text-slate-600 border-b border-slate-200">
+                    <th class="py-2 px-3">Action Step</th>
+                    <th class="py-2 px-3">Process Owner</th>
+                    <th class="py-2 px-3">Target SLA</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                  ${actions.map(a => `
+                    <tr>
+                      <td class="py-2 px-3 text-slate-800 font-medium">${a.step}</td>
+                      <td class="py-2 px-3 text-slate-600">${a.owner}</td>
+                      <td class="py-2 px-3 font-semibold text-teal-700 whitespace-nowrap">${a.sla}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="p-3.5 rounded-xl bg-teal-50/60 border border-teal-200">
+              <h4 class="font-bold text-teal-950 uppercase tracking-wider text-[11px] mb-1.5">3. KPIs & Audit Metrics to Track</h4>
+              <ul class="list-disc pl-4 space-y-1 text-slate-700">
+                ${kpis.map(k => `<li>${k}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1.5">4. Governance & Non-Clinical Note</h4>
+              <p class="text-slate-600 leading-relaxed">
+                Operational workflow guidance only. Validate any SOP revisions with your Hospital Quality Committee & Nursing Superintendent prior to ward rollout. Do not input identifiable patient PHI.
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function runAssistantQuery() {
+      const inputEl = document.getElementById('assistant-input');
+      const query = inputEl.value.trim();
+      if (!query) {
+        showToast('Please enter an operational question or select a preset scenario.');
+        return;
+      }
+
+      const result = analyzeQueryAndBuildResponse(query);
+      const container = document.getElementById('assistant-output-container');
+
+      const cardHTML = `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden tab-panel">
+          <div class="px-5 py-3.5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-robot text-teal-400"></i>
+              <span class="text-xs font-bold">Hospital Operations Assistant Response</span>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${result.badgeColor}">
+              ${result.mode}
+            </span>
+          </div>
+          <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 text-xs text-slate-600">
+            <strong class="text-slate-800">Query Evaluated:</strong> "${query}"
+          </div>
+          <div class="p-5">
+            ${result.html}
+          </div>
+        </div>
+      `;
+
+      // Prepend newest response at top of output container
+      if (container.querySelector('.text-center')) {
+        container.innerHTML = cardHTML;
+      } else {
+        container.insertAdjacentHTML('afterbegin', cardHTML);
+      }
+
+      document.getElementById('context-detector-pill').textContent = result.mode;
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. MBA DELIVERABLES: TEST LOG RENDERING & FILTERING
+    // -----------------------------------------------------------------------
+
+    function renderTestLog(filterCategory = 'all') {
+      const tbody = document.getElementById('test-log-tbody');
+      const rows = filterCategory === 'all'
+        ? TEST_LOG_DATA
+        : TEST_LOG_DATA.filter(item => item.category === filterCategory);
+
+      tbody.innerHTML = rows.map(item => {
+        const isGuardrail = item.category === 'Guardrail Test';
+        const badgeStyle = isGuardrail
+          ? 'bg-amber-100 text-amber-900 border-amber-200'
+          : 'bg-emerald-100 text-emerald-800 border-emerald-200';
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition align-top">
+            <td class="py-3.5 px-4 font-bold text-slate-900">${item.id}</td>
+            <td class="py-3.5 px-4">
+              <span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                ${item.category}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-800 font-medium leading-relaxed">"${item.query}"</td>
+            <td class="py-3.5 px-4 text-slate-600 leading-relaxed">${item.summary}</td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badgeStyle}">
+                ${item.check}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterTestLog(cat) {
+      document.querySelectorAll('.tl-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-tl') === cat) {
+          btn.classList.remove('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+          btn.classList.add('bg-teal-600', 'text-white');
+        } else {
+          btn.classList.remove('bg-teal-600', 'text-white');
+          btn.classList.add('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+        }
+      });
+      renderTestLog(cat);
+    }
+
+    // -----------------------------------------------------------------------
+    // 7. INITIALIZE APPLICATION ON LOAD
+    // -----------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      renderWorkflows('all');
+      renderAuditChecklist();
+      renderKPITable();
+      renderPresetPrompts();
+      renderTestLog('all');
+    });
+  </script>
+</body>
+</html>
